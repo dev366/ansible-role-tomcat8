@@ -1,0 +1,3 @@
+---
+#ansible_tomcat8_admin_user: { name: 'admin', password: 'admin' }
+ansible_tomcat8_CATALINA_OPTS: '-Xms512M -Xmx1024M -server -XX:+UseParallelGC'

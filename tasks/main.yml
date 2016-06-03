@@ -1,0 +1,47 @@
+---
+- name: Add Tomcat developers keys
+  # See https://github.com/docker-library/tomcat/blob/ed98c30c1cd42c53831f64dffa78a0abf7db8e9a/8-jre8/Dockerfile#L33
+  # and https://www.apache.org/dist/tomcat/tomcat-8/KEYS
+  apt_key: keyserver=keyserver.ubuntu.com id={{ item }}
+  with_items:
+    - 05AB33110949707C93A279E3D3EFE6B686867BA6
+    - 07E48665A34DCAFAE522E5E6266191C37C037D42
+    - 47309207D818FFD8DCD3F83F1931D684307A10A5
+    - 541FBE7D8F78B25E055DDEE13C370389288584E7
+    - 61B832AC2F1C5A90F0F9B00A1C506407564C17A3
+    - 79F7026C690BAA50B92CD8B66A3AD3F4F22C4FED
+    - 9BA44C2621385CB966EBA586F72C284D731FABEE
+    - A27677289986DB50844682F8ACB77FC2E86E29AC
+    - A9C5DF4D22E99998D9875A5110C01C5A2F6059E7
+    - DCFD35E0BF8CA7344752DE8B6FB21E8933C60243
+    - F3A04C595DB5B6A5F1ECA43E3B7BBB100D811BBE
+    - F7DA48BB64BCB84ECBA7EE6935CD23C10D498E23
+    - DCFD35E0BF8CA7344752DE8B6FB21E8933C60243
+    - A9C5DF4D22E99998D9875A5110C01C5A2F6059E7
+    - F3A04C595DB5B6A5F1ECA43E3B7BBB100D811BBE
+    - 9BA44C2621385CB966EBA586F72C284D731FABEE
+
+- name: Install Tomcat 8
+  script: creates=/opt/tomcat scripts/tomcat8-install.sh # {{ ansible_tomcat8_admin_user.username }} {{ ansible_tomcat8_admin_user.password }}
+
+- name: Create tomcat group
+  group: name=tomcat state=present
+
+- name: Create tomcat user
+  user: name=tomcat shell=/bin/false group=tomcat home=/opt/tomcat createhome=no
+
+- name: Copy config files
+  template: src=templates/init-tomcat.conf.j2 dest=/etc/init/tomcat.conf mode=0444
+  notify:
+    - Restart Tomcat
+- template: src=templates/tomcat-users.xml.j2 dest=/opt/tomcat/conf/tomcat-users.xml owner=tomcat group=tomcat mode=0440
+  notify:
+    - Restart Tomcat
+
+- name: Set correct permissions on tomcat dir
+  file: path=/opt/tomcat/conf group=tomcat recurse=yes
+- file: path=/opt/tomcat/conf mode=g+rwx
+- file: path=/opt/tomcat/conf mode=g+r recurse=yes
+- file: path=/opt/tomcat/work owner=tomcat recurse=yes
+- file: path=/opt/tomcat/logs owner=tomcat recurse=yes
+- file: path=/opt/tomcat/temp owner=tomcat recurse=yes
