@@ -162,3 +162,5 @@ galaxy_info:
     - installer
     - tomcat
     - tomcat8
+
+  dependencies: []
