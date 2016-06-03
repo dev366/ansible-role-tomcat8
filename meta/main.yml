@@ -163,4 +163,4 @@ galaxy_info:
     - tomcat
     - tomcat8
 
-  dependencies: []
+dependencies: []
